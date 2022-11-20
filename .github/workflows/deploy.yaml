@@ -23,3 +23,18 @@ jobs:
       - run: docker push votasbanned/multi-nginx-10-14
       - run: docker push votasbanned/multi-server-10-14
       - run: docker push votasbanned/multi-worker-10-14
+
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v18
+        with: 
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          application_name: multi-docker
+          environment_name: Multidocker-env-2
+          existing_bucket_name: elasticbeanstalk-us-west-2-607275393041
+          region: us-west-2
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
